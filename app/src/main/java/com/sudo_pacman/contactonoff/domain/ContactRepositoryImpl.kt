@@ -187,7 +187,7 @@ class ContactRepositoryImpl private constructor() : ContactRepository {
 
                 for (i in localData.indices) {
                     if (localData[i].phone == contactUIData.phone) {
-                        contactDao.editContact(ContactEntity(localData[i].id, localData[i].remoteID, contactUIData.firstName, contactUIData.lastName, contactUIData.phone, StatusEnum.DELETE.statusCode))
+                        contactDao.deleteContact(ContactEntity(localData[i].id, localData[i].remoteID, contactUIData.firstName, contactUIData.lastName, contactUIData.phone, StatusEnum.DELETE.statusCode))
                         break
                     }
                 }
