@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">ContactOnOff</string>
+    <string name="lastname">Lastname</string>
+    <string name="firstname">Firstname</string>
+    <string name="phone">Phone</string>
+    <string name="edit">Edit</string>
+    <string name="edit_contact">Edit contact</string>
+</resources>

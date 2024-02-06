@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/app_nav"
+    app:startDestination="@id/contactsScreen">
+
+    <fragment
+        android:id="@+id/contactsScreen"
+        android:name="com.sudo_pacman.contactonoff.presenter.screens.contacts.ContactsScreen"
+        android:label="ContactsScreen"
+        tools:layout="@layout/screen_main">
+        <action
+            android:id="@+id/action_contactsScreen_to_addContactDialog"
+            app:destination="@id/addContactDialog" />
+        <action
+            android:id="@+id/action_contactsScreen_to_editContactScreen"
+            app:destination="@id/editContactScreen">
+
+            <argument
+                android:name="contactID"
+                app:argType="integer" />
+            <argument
+                android:name="firstname"
+                app:argType="string" />
+            <argument
+                android:name="lastname"
+                app:argType="string" />
+            <argument
+                android:name="phone"
+                app:argType="string" />
+        </action>
+    </fragment>
+
+    <fragment
+        android:id="@+id/addContactDialog"
+        android:name="com.sudo_pacman.contactonoff.presenter.dialog.AddContactDialog"
+        android:label="AddContactDialog"
+        tools:layout="@layout/screen_contact_add"/>
+
+    <fragment
+        android:id="@+id/editContactScreen"
+        android:name="com.sudo_pacman.contactonoff.presenter.screens.contacts.EditContactScreen"
+        android:label="EditContactScreen"
+        tools:layout="@layout/screen_contact_edit"/>
+</navigation>
