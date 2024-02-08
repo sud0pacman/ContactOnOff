@@ -4,15 +4,17 @@ import android.content.Context
 import android.content.SharedPreferences
 
 object MyShar {
-    private lateinit var sharedPreferences:SharedPreferences
+    private lateinit var sharedPreferences: SharedPreferences
 
-    fun init(context: Context){
-        sharedPreferences =context.getSharedPreferences("Contact",Context.MODE_PRIVATE)
+    fun init(context: Context) {
+        sharedPreferences = context.getSharedPreferences("Contact", Context.MODE_PRIVATE)
     }
-    fun setToken(token:String){
-        sharedPreferences.edit().putString("token",token).apply()
+
+    fun setToken(token: String) {
+        sharedPreferences.edit().putString("token", token).apply()
     }
-    fun getToken(): String = sharedPreferences.getString("token","")!!
+
+    fun getToken(): String = sharedPreferences.getString("token", "")!!
 
     fun setCode(code: String) = sharedPreferences.edit().putString("code", code).apply()
 

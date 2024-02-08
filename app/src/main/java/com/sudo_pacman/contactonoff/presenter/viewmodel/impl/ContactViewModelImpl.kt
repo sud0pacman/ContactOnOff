@@ -10,9 +10,12 @@ import com.sudo_pacman.contactonoff.presenter.viewmodel.ContactsViewModel
 import com.sudo_pacman.contactonoff.utils.MyEventBus
 import com.sudo_pacman.contactonoff.utils.NetworkStatusValidator
 import com.sudo_pacman.contactonoff.utils.myLog
+import dagger.hilt.android.lifecycle.HiltViewModel
 import timber.log.Timber
+import javax.inject.Inject
 
-class ContactViewModelImpl(private val repository: ContactRepository) : ViewModel(), ContactsViewModel {
+@HiltViewModel
+class ContactViewModelImpl @Inject constructor(private val repository: ContactRepository) : ViewModel(), ContactsViewModel {
     override val progressLiveData = MutableLiveData<Boolean>()
     override val contactLiveData = MutableLiveData<List<ContactUIData>>()
     override val errorMessageLiveData = MutableLiveData<String>()
@@ -66,7 +69,7 @@ class ContactViewModelImpl(private val repository: ContactRepository) : ViewMode
     }
 
     override fun clickEdit(contactUI: ContactUIData) {
-        if(contactUI.status == StatusEnum.ADD) {
+        if (contactUI.status == StatusEnum.ADD) {
             "model: bu kontakt add statusda buni faqat o'chirish mumkin".myLog()
             return
         }

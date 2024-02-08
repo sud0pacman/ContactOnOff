@@ -5,4 +5,14 @@
     <string name="phone">Phone</string>
     <string name="edit">Edit</string>
     <string name="edit_contact">Edit contact</string>
+
+    <string name="phone_number">Phone number</string>
+    <string name="password">Password</string>
+    <string name="log_in">Log In</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="verify">Verify</string>
+    <string name="muhammad">Muhammad</string>
+    <string name="test_phone">+998945556789</string>
+    <string name="test_password">20022002</string>
+    <string name="all_ready_exist">All ready exist</string>
 </resources>

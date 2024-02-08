@@ -2,15 +2,19 @@ package com.sudo_pacman.contactonoff.presenter.viewmodel.impl
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.sudo_pacman.contactonoff.data.source.remote.request.ContactCreateRequest
 import com.sudo_pacman.contactonoff.domain.ContactRepository
 import com.sudo_pacman.contactonoff.presenter.viewmodel.ContactAddViewModel
 import com.sudo_pacman.contactonoff.utils.MyEventBus
 import com.sudo_pacman.contactonoff.utils.NetworkStatusValidator
 import com.sudo_pacman.contactonoff.utils.myLog
-import timber.log.Timber
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class ContactAddViewModelImpl(private val repository: ContactRepository) : ContactAddViewModel, ViewModel() {
+@HiltViewModel
+class ContactAddViewModelImpl @Inject constructor(
+    private val repository: ContactRepository,
+    private val networkStatusValidator: NetworkStatusValidator
+) : ViewModel(), ContactAddViewModel {
     override val closeScreenLiveData = MutableLiveData<Unit>()
     override val progressLiveData = MutableLiveData<Boolean>()
     override val messageLiveData = MutableLiveData<String>()
@@ -29,7 +33,7 @@ class ContactAddViewModelImpl(private val repository: ContactRepository) : Conta
             phone = phone,
             successBlock = {
                 progressLiveData.value = true
-                if (NetworkStatusValidator.hasNetwork) messageLiveData.value = "Success!"
+                if (networkStatusValidator.hasNetwork) messageLiveData.value = "Success!"
                 else messageLiveData.value = "Save in local"
 
                 closeScreenLiveData.value = Unit

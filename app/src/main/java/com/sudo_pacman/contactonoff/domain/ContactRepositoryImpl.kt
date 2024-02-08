@@ -6,9 +6,9 @@ import com.sudo_pacman.contactonoff.data.mapper.ContactMapper.toUIData
 import com.sudo_pacman.contactonoff.data.model.ContactUIData
 import com.sudo_pacman.contactonoff.data.model.StatusEnum
 import com.sudo_pacman.contactonoff.data.model.toStatusEnum
-import com.sudo_pacman.contactonoff.data.source.local.AppDataBase
+import com.sudo_pacman.contactonoff.data.source.local.api.ContactApi
+import com.sudo_pacman.contactonoff.data.source.local.dao.ContactDao
 import com.sudo_pacman.contactonoff.data.source.local.entity.ContactEntity
-import com.sudo_pacman.contactonoff.data.source.remote.ApiClient
 import com.sudo_pacman.contactonoff.data.source.remote.request.ContactCreateRequest
 import com.sudo_pacman.contactonoff.data.source.remote.request.EditContactRequest
 import com.sudo_pacman.contactonoff.data.source.remote.response.ContactResponse
@@ -19,22 +19,16 @@ import com.sudo_pacman.contactonoff.utils.myLog
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class ContactRepositoryImpl private constructor() : ContactRepository {
-
-    companion object {
-        private lateinit var repository: ContactRepository
-
-        fun init() {
-            if (!(::repository.isInitialized)) repository = ContactRepositoryImpl()
-        }
-
-        fun getInstance() = repository
-    }
-
-    private val api = ApiClient.api
-    val gson = Gson()
-    private val contactDao = AppDataBase.getInstance().getContactDao()
+@Singleton
+class ContactRepositoryImpl @Inject constructor(
+    private val contactDao: ContactDao,
+    private val api: ContactApi,
+    private val gson: Gson,
+    private val networkStatusValidator: NetworkStatusValidator // hello everyone
+) : ContactRepository {
 
     override fun getAllContact(successBlock: (List<ContactUIData>) -> Unit, errorBlock: (String) -> Unit) {
 
@@ -65,7 +59,7 @@ class ContactRepositoryImpl private constructor() : ContactRepository {
 
     @SuppressLint("BinaryOperationInTimber")
     override fun addContact(firstName: String, lastName: String, phone: String, successBlock: () -> Unit, errorBlock: (String) -> Unit) {
-        if (NetworkStatusValidator.hasNetwork) {
+        if (networkStatusValidator.hasNetwork) {
 
             val request = ContactCreateRequest(firstName, lastName, phone)
             api.addContact(request).enqueue(object : Callback<ContactResponse> {
@@ -161,7 +155,7 @@ class ContactRepositoryImpl private constructor() : ContactRepository {
     }
 
     override fun deleteContact(contactUIData: ContactUIData, successBlock: () -> Unit, errorBlock: (String) -> Unit) {
-        if (NetworkStatusValidator.hasNetwork) {
+        if (networkStatusValidator.hasNetwork) {
             api.deleteContact(contactUIData.id).enqueue(object : Callback<DeleteContactResponse> {
                 override fun onResponse(call: Call<DeleteContactResponse>, response: Response<DeleteContactResponse>) {
                     if (response.isSuccessful && response.body() != null) {
@@ -208,7 +202,7 @@ class ContactRepositoryImpl private constructor() : ContactRepository {
     }
 
     override fun editContact(id: Int, firstName: String, lastName: String, phone: String, successBlock: () -> Unit, errorBlock: (String) -> Unit) {
-        if (NetworkStatusValidator.hasNetwork) {
+        if (networkStatusValidator.hasNetwork) {
             val editContactRequest = EditContactRequest(id, firstName, lastName, phone)
 
             api.editContact(editContactRequest).enqueue(object : Callback<ContactResponse> {
