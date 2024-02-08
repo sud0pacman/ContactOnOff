@@ -1,6 +1,6 @@
-package com.example.onlinecontact.data.global.request
+package com.sudo_pacman.contactonoff.data.source.remote.request
 
 data class LoginRequest(
     val phone: String,
-    val password: Int
+    val password: String
 )

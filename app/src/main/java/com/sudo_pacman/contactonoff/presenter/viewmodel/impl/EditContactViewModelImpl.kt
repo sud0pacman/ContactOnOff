@@ -5,8 +5,11 @@ import androidx.lifecycle.ViewModel
 import com.sudo_pacman.contactonoff.domain.ContactRepository
 import com.sudo_pacman.contactonoff.presenter.viewmodel.EditContactViewModel
 import com.sudo_pacman.contactonoff.utils.myLog
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class EditContactViewModelImpl(private val repository: ContactRepository) : EditContactViewModel, ViewModel() {
+@HiltViewModel
+class EditContactViewModelImpl @Inject constructor(private val repository: ContactRepository) : EditContactViewModel, ViewModel() {
     override val closeScreenLiveData = MutableLiveData<Unit>()
     override val progressLiveData = MutableLiveData<Boolean>()
     override val messageLiveData = MutableLiveData<String>()

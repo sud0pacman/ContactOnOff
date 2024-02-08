@@ -1,21 +1,27 @@
 package com.sudo_pacman.contactonoff.domain
 
 import android.annotation.SuppressLint
+import com.sudo_pacman.contactonoff.data.source.remote.request.LoginRequest
+import com.example.onlinecontact.data.global.request.RegisterRequest
 import com.google.gson.Gson
 import com.sudo_pacman.contactonoff.data.mapper.ContactMapper.toUIData
 import com.sudo_pacman.contactonoff.data.model.ContactUIData
 import com.sudo_pacman.contactonoff.data.model.StatusEnum
 import com.sudo_pacman.contactonoff.data.model.toStatusEnum
+import com.sudo_pacman.contactonoff.data.source.local.MyShar
 import com.sudo_pacman.contactonoff.data.source.local.api.ContactApi
 import com.sudo_pacman.contactonoff.data.source.local.dao.ContactDao
 import com.sudo_pacman.contactonoff.data.source.local.entity.ContactEntity
 import com.sudo_pacman.contactonoff.data.source.remote.request.ContactCreateRequest
 import com.sudo_pacman.contactonoff.data.source.remote.request.EditContactRequest
+import com.sudo_pacman.contactonoff.data.source.remote.request.VerifyRequest
 import com.sudo_pacman.contactonoff.data.source.remote.response.ContactResponse
 import com.sudo_pacman.contactonoff.data.source.remote.response.DeleteContactResponse
 import com.sudo_pacman.contactonoff.data.source.remote.response.ErrorResponse
+import com.sudo_pacman.contactonoff.data.source.remote.response.TokenResponse
 import com.sudo_pacman.contactonoff.utils.NetworkStatusValidator
 import com.sudo_pacman.contactonoff.utils.myLog
+import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -27,12 +33,14 @@ class ContactRepositoryImpl @Inject constructor(
     private val contactDao: ContactDao,
     private val api: ContactApi,
     private val gson: Gson,
-    private val networkStatusValidator: NetworkStatusValidator // hello everyone
+    private val networkStatusValidator: NetworkStatusValidator
 ) : ContactRepository {
 
     override fun getAllContact(successBlock: (List<ContactUIData>) -> Unit, errorBlock: (String) -> Unit) {
 
-        api.getAllContact().enqueue(object : Callback<List<ContactResponse>> {
+        "repo token ${MyShar.getToken()}".myLog()
+
+        api.getAllContact(MyShar.getToken()).enqueue(object : Callback<List<ContactResponse>> {
             override fun onResponse(
                 call: Call<List<ContactResponse>>,
                 response: Response<List<ContactResponse>>
@@ -62,7 +70,7 @@ class ContactRepositoryImpl @Inject constructor(
         if (networkStatusValidator.hasNetwork) {
 
             val request = ContactCreateRequest(firstName, lastName, phone)
-            api.addContact(request).enqueue(object : Callback<ContactResponse> {
+            api.addContact(MyShar.getToken(), request).enqueue(object : Callback<ContactResponse> {
                 override fun onResponse(call: Call<ContactResponse>, response: Response<ContactResponse>) {
                     if (response.isSuccessful && response.body() != null) {
                         successBlock.invoke()
@@ -90,7 +98,7 @@ class ContactRepositoryImpl @Inject constructor(
         localList.forEach { entitity ->
             when (entitity.statusCode.toStatusEnum()) {
                 StatusEnum.ADD -> {
-                    api.addContact(ContactCreateRequest(entitity.firstName, entitity.lastName, entitity.phone))
+                    api.addContact(MyShar.getToken(), ContactCreateRequest(entitity.firstName, entitity.lastName, entitity.phone))
                         .enqueue(object : Callback<ContactResponse> {
                             override fun onResponse(call: Call<ContactResponse>, response: Response<ContactResponse>) {
                                 contactDao.deleteContact(entitity)
@@ -111,7 +119,7 @@ class ContactRepositoryImpl @Inject constructor(
 
                 StatusEnum.DELETE -> {
                     "sync delete id ${entitity.id}".myLog()
-                    api.deleteContact(entitity.remoteID).enqueue(object : Callback<DeleteContactResponse> {
+                    api.deleteContact(MyShar.getToken(), entitity.remoteID).enqueue(object : Callback<DeleteContactResponse> {
                         override fun onResponse(call: Call<DeleteContactResponse>, response: Response<DeleteContactResponse>) {
                             contactDao.deleteContact(entitity)
 
@@ -130,7 +138,7 @@ class ContactRepositoryImpl @Inject constructor(
                     })
                 }
                 StatusEnum.EDIT -> {
-                    api.editContact(EditContactRequest(entitity.remoteID, entitity.firstName, entitity.lastName, entitity.phone)).enqueue(object : Callback<ContactResponse> {
+                    api.editContact(MyShar.getToken(), EditContactRequest(entitity.remoteID, entitity.firstName, entitity.lastName, entitity.phone)).enqueue(object : Callback<ContactResponse> {
                         override fun onResponse(call: Call<ContactResponse>, response: Response<ContactResponse>) {
                             contactDao.deleteContact(entitity)
 
@@ -156,7 +164,7 @@ class ContactRepositoryImpl @Inject constructor(
 
     override fun deleteContact(contactUIData: ContactUIData, successBlock: () -> Unit, errorBlock: (String) -> Unit) {
         if (networkStatusValidator.hasNetwork) {
-            api.deleteContact(contactUIData.id).enqueue(object : Callback<DeleteContactResponse> {
+            api.deleteContact(MyShar.getToken(), contactUIData.id).enqueue(object : Callback<DeleteContactResponse> {
                 override fun onResponse(call: Call<DeleteContactResponse>, response: Response<DeleteContactResponse>) {
                     if (response.isSuccessful && response.body() != null) {
                         successBlock.invoke()
@@ -205,7 +213,7 @@ class ContactRepositoryImpl @Inject constructor(
         if (networkStatusValidator.hasNetwork) {
             val editContactRequest = EditContactRequest(id, firstName, lastName, phone)
 
-            api.editContact(editContactRequest).enqueue(object : Callback<ContactResponse> {
+            api.editContact(MyShar.getToken(), editContactRequest).enqueue(object : Callback<ContactResponse> {
                 override fun onResponse(call: Call<ContactResponse>, response: Response<ContactResponse>) {
                     if (response.isSuccessful && response.body() != null) {
                         successBlock.invoke()
@@ -230,6 +238,65 @@ class ContactRepositoryImpl @Inject constructor(
             )
 
             successBlock.invoke()
+        }
+    }
+
+    override fun registerUser(firstName: String, lastName: String, phone: String, password: String, success: () -> Unit, failure: (String) -> Unit) {
+        val registerRequest = RegisterRequest(firstName, lastName, phone, password)
+        api.registerUser(registerRequest).enqueue(object : Callback<Unit> {
+            override fun onResponse(call: Call<Unit>, response: Response<Unit>) {
+                if (response.isSuccessful) {
+                    success.invoke()
+                } else failure.invoke(getFailureMessage(response.errorBody()))
+            }
+
+            override fun onFailure(call: Call<Unit>, t: Throwable) {
+                failure.invoke(t.message ?: "")
+            }
+        })
+    }
+
+    override fun verifyUser(phone: String, code: String, success: () -> Unit, failure: (String) -> Unit) {
+        val verifyRequest = VerifyRequest(phone, code)
+
+        api.verifyUser(verifyRequest).enqueue(object : Callback<TokenResponse>{
+            override fun onResponse(call: Call<TokenResponse>, response: Response<TokenResponse>) {
+                if (response.isSuccessful) {
+                    MyShar.setToken(response.body()!!.token)
+
+                    if (response.isSuccessful) success.invoke()
+                    else failure.invoke(getFailureMessage(response.errorBody()))
+                }
+            }
+
+            override fun onFailure(call: Call<TokenResponse>, t: Throwable) {
+                failure.invoke(t.message ?: "")
+            }
+        })
+    }
+
+    override fun login(phone: String, password: String, success: () -> Unit, failure: (String) -> Unit) {
+        if (networkStatusValidator.hasNetwork) {
+            val loginRequest = LoginRequest(phone, password)
+            api.loginUser(loginRequest).enqueue(object : Callback<TokenResponse> {
+                override fun onResponse(call: Call<TokenResponse>, response: Response<TokenResponse>) {
+                    if (response.isSuccessful) {
+                        "repo login success".myLog()
+                        MyShar.setToken(response.body()!!.token)
+
+                        if (response.isSuccessful) success.invoke()
+                        else failure.invoke(getFailureMessage(response.errorBody()))
+                    }
+                }
+
+                override fun onFailure(call: Call<TokenResponse>, t: Throwable) {
+                    failure.invoke(t.message ?: "")
+                }
+
+            })
+        }
+        else {
+            failure.invoke("Inter yo'q")
         }
     }
 
@@ -276,5 +343,17 @@ class ContactRepositoryImpl @Inject constructor(
         }
 
         return result
+    }
+
+    private fun getFailureMessage(errorBody: ResponseBody?): String {
+        try {
+            if (errorBody != null) {
+                val data = gson.fromJson(errorBody.string(), ErrorResponse::class.java)
+                return data?.message ?: "Not Connection Internet"
+            }
+        } catch (_: Exception) {
+
+        }
+        return "Nomalum xatolik!"
     }
 }

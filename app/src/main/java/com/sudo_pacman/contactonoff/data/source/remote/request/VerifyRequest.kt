@@ -1,4 +1,4 @@
-package com.example.onlinecontact.data.global.request
+package com.sudo_pacman.contactonoff.data.source.remote.request
 
 data class VerifyRequest(
     val phone: String,

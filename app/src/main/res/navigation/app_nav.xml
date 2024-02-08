@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/app_nav"
-    app:startDestination="@id/contactsScreen">
+    app:startDestination="@id/splashScreen">
 
     <fragment
         android:id="@+id/contactsScreen"
@@ -29,6 +29,7 @@
             <argument
                 android:name="phone"
                 app:argType="string" />
+
         </action>
     </fragment>
 
@@ -43,4 +44,50 @@
         android:name="com.sudo_pacman.contactonoff.presenter.screens.contacts.EditContactScreen"
         android:label="EditContactScreen"
         tools:layout="@layout/screen_contact_edit"/>
+
+    <fragment
+        android:id="@+id/signUpScreen"
+        android:name="com.sudo_pacman.contactonoff.presenter.screens.sign_up.SignUpScreen"
+        android:label="SignUpScreen"
+        tools:layout="@layout/screen_sign_up">
+        <action
+            android:id="@+id/action_signUpScreen_to_verifyScreen"
+            app:destination="@id/verifyScreen" />
+        <action
+            android:id="@+id/action_signUpScreen_to_loginScreen"
+            app:destination="@id/loginScreen" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/verifyScreen"
+        android:name="com.sudo_pacman.contactonoff.presenter.screens.verify.VerifyScreen"
+        android:label="VerifyScreen"
+        tools:layout="@layout/screen_verify">
+        <action
+            android:id="@+id/action_verifyScreen_to_contactsScreen"
+            app:destination="@id/contactsScreen" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/loginScreen"
+        android:name="com.sudo_pacman.contactonoff.presenter.screens.login.LoginScreen"
+        android:label="LoginScreen"
+        tools:layout="@layout/screen_login">
+        <action
+            android:id="@+id/action_loginScreen_to_contactsScreen"
+            app:destination="@id/contactsScreen" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/splashScreen"
+        android:name="com.sudo_pacman.contactonoff.presenter.screens.splash.SplashScreen"
+        android:label="SplashScreen"
+        tools:layout="@layout/screen_splash">
+        <action
+            android:id="@+id/action_splashScreen_to_signUpScreen"
+            app:destination="@id/signUpScreen" />
+        <action
+            android:id="@+id/action_splashScreen_to_loginScreen"
+            app:destination="@id/loginScreen" />
+    </fragment>
 </navigation>

@@ -92,7 +92,7 @@ class ContactsScreen : Fragment(R.layout.screen_main) {
     }
 
     private val openEditScreenObserver = Observer<ContactUIData> {
-//        findNavController().navigate(ContactS.actionContactsScreenToEditContactScreen(it.id, it.firstName, it.lastName, it.phone))
+        findNavController().navigate(ContactsScreenDirections.actionContactsScreenToEditContactScreen(it.id, it.firstName, it.lastName, it.phone))
 //        findNavController().findDestination(ContactsScreenDirections.actionContactsScreenToEditContactScreen())
 //        findNavController().navigate(R.id.action_contactsScreen_to_editContactScreen)
     }
