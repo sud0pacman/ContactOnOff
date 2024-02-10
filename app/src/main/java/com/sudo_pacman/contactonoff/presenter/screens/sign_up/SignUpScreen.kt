@@ -20,12 +20,6 @@ class SignUpScreen : Fragment(R.layout.screen_sign_up) {
     private val binding by viewBinding(ScreenSignUpBinding::bind)
     private val viewModel by viewModels<SignUpViewModelImpl>()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        viewModel.openLoginLiveData.observe(this, openLogInObserver)
-    }
-
     @SuppressLint("FragmentLiveDataObserve")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
@@ -41,21 +35,8 @@ class SignUpScreen : Fragment(R.layout.screen_sign_up) {
         }
 
 
-        viewModel.openVerifyLiveData.observe(this, openPasswordObserver)
-
         binding.btnAllReady.setOnClickListener {
             viewModel.clickAllReady()
         }
-    }
-
-    private val openPasswordObserver = Observer<Boolean> {
-        if (it) {
-            Timber.tag("TTT").d("open pass")
-            findNavController().navigate(R.id.action_signUpScreen_to_verifyScreen)
-        }
-    }
-
-    private val openLogInObserver = Observer<Unit> {
-        findNavController().navigate(R.id.action_signUpScreen_to_loginScreen)
     }
 }

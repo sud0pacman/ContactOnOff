@@ -13,24 +13,16 @@
         <action
             android:id="@+id/action_contactsScreen_to_addContactDialog"
             app:destination="@id/addContactDialog" />
+
+        <action
+            android:id="@+id/action_contactsScreen_to_loginScreen"
+            app:destination="@id/loginScreen"
+            app:popUpTo="@id/loginScreen"
+            app:popUpToInclusive="true" />
+
         <action
             android:id="@+id/action_contactsScreen_to_editContactScreen"
-            app:destination="@id/editContactScreen">
-
-            <argument
-                android:name="contactID"
-                app:argType="integer" />
-            <argument
-                android:name="firstname"
-                app:argType="string" />
-            <argument
-                android:name="lastname"
-                app:argType="string" />
-            <argument
-                android:name="phone"
-                app:argType="string" />
-
-        </action>
+            app:destination="@id/editContactScreen" />
     </fragment>
 
     <fragment
@@ -41,9 +33,14 @@
 
     <fragment
         android:id="@+id/editContactScreen"
-        android:name="com.sudo_pacman.contactonoff.presenter.screens.contacts.EditContactScreen"
+        android:name="com.sudo_pacman.contactonoff.presenter.screens.edit.EditContactScreen"
         android:label="EditContactScreen"
-        tools:layout="@layout/screen_contact_edit"/>
+        tools:layout="@layout/screen_contact_edit">
+
+        <argument
+            android:name="ContactUIData"
+            app:argType="com.sudo_pacman.contactonoff.data.model.ContactUIData" />
+    </fragment>
 
     <fragment
         android:id="@+id/signUpScreen"
@@ -53,9 +50,7 @@
         <action
             android:id="@+id/action_signUpScreen_to_verifyScreen"
             app:destination="@id/verifyScreen" />
-        <action
-            android:id="@+id/action_signUpScreen_to_loginScreen"
-            app:destination="@id/loginScreen" />
+
     </fragment>
 
     <fragment
@@ -63,9 +58,12 @@
         android:name="com.sudo_pacman.contactonoff.presenter.screens.verify.VerifyScreen"
         android:label="VerifyScreen"
         tools:layout="@layout/screen_verify">
+
         <action
             android:id="@+id/action_verifyScreen_to_contactsScreen"
-            app:destination="@id/contactsScreen" />
+            app:destination="@id/contactsScreen"
+            app:popUpTo="@id/loginScreen"
+            app:popUpToInclusive="true" />
     </fragment>
 
     <fragment
@@ -75,7 +73,12 @@
         tools:layout="@layout/screen_login">
         <action
             android:id="@+id/action_loginScreen_to_contactsScreen"
-            app:destination="@id/contactsScreen" />
+            app:destination="@id/contactsScreen"
+            app:popUpTo="@id/loginScreen"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_loginScreen_to_signUpScreen"
+            app:destination="@id/signUpScreen" />
     </fragment>
 
     <fragment
@@ -83,11 +86,11 @@
         android:name="com.sudo_pacman.contactonoff.presenter.screens.splash.SplashScreen"
         android:label="SplashScreen"
         tools:layout="@layout/screen_splash">
-        <action
-            android:id="@+id/action_splashScreen_to_signUpScreen"
-            app:destination="@id/signUpScreen" />
+
         <action
             android:id="@+id/action_splashScreen_to_loginScreen"
-            app:destination="@id/loginScreen" />
+            app:destination="@id/loginScreen"
+            app:popUpTo="@id/loginScreen"
+            app:popUpToInclusive="true" />
     </fragment>
 </navigation>

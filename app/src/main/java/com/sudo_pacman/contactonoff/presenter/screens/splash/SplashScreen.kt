@@ -28,10 +28,6 @@ class SplashScreen : Fragment(R.layout.screen_splash) {
     }
 
     private val loginStateObServer = Observer<Boolean> {
-        if (it) {
-            navController.navigate(SplashScreenDirections.actionSplashScreenToSignUpScreen())
-        } else {
-            navController.navigate(SplashScreenDirections.actionSplashScreenToLoginScreen())
-        }
+        navController.navigate(SplashScreenDirections.actionSplashScreenToLoginScreen())
     }
 }

@@ -12,6 +12,7 @@ import com.sudo_pacman.contactonoff.R
 import com.sudo_pacman.contactonoff.databinding.ScreenVerifyBinding
 import com.sudo_pacman.contactonoff.presenter.viewmodel.VerifyViewModel
 import com.sudo_pacman.contactonoff.presenter.viewmodel.impl.VerifyViewModelImpl
+import com.sudo_pacman.contactonoff.utils.myLog
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -22,6 +23,7 @@ class VerifyScreen : Fragment(R.layout.screen_verify) {
     @SuppressLint("FragmentLiveDataObserve")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding.btnVerify.setOnClickListener {
+            "view click verify".myLog()
             viewModel.clickVerify(binding.etPassword.text.toString())
         }
 

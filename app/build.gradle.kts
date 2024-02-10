@@ -5,6 +5,7 @@ plugins {
     id("com.google.dagger.hilt.android")
     //
     id("androidx.navigation.safeargs.kotlin")
+    id("kotlin-parcelize")
 }
 
 android {
@@ -119,4 +120,10 @@ dependencies {
      */
     implementation("com.google.dagger:hilt-android:2.50")
     kapt("com.google.dagger:hilt-compiler:2.50")
+
+    //Corbind
+    implementation(platform("ru.ldralighieri.corbind:corbind-bom:2023.12.00"))
+    implementation("ru.ldralighieri.corbind:corbind")
+    implementation("ru.ldralighieri.corbind:corbind-core")
+
 }

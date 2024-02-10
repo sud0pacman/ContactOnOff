@@ -2,21 +2,28 @@ package com.sudo_pacman.contactonoff.presenter.viewmodel.impl
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.sudo_pacman.contactonoff.data.model.ContactUIData
 import com.sudo_pacman.contactonoff.data.model.StatusEnum
-import com.sudo_pacman.contactonoff.data.source.remote.response.ContactResponse
 import com.sudo_pacman.contactonoff.domain.ContactRepository
+import com.sudo_pacman.contactonoff.navigation.AppNavigator
+import com.sudo_pacman.contactonoff.presenter.screens.contacts.ContactsScreenDirections
 import com.sudo_pacman.contactonoff.presenter.viewmodel.ContactsViewModel
 import com.sudo_pacman.contactonoff.utils.MyEventBus
-import com.sudo_pacman.contactonoff.utils.NetworkStatusValidator
 import com.sudo_pacman.contactonoff.utils.myLog
 import dagger.hilt.android.lifecycle.HiltViewModel
-import timber.log.Timber
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ContactViewModelImpl @Inject constructor(private val repository: ContactRepository) : ViewModel(), ContactsViewModel {
-    override val progressLiveData = MutableLiveData<Boolean>()
+class ContactViewModelImpl @Inject constructor(
+    private val repository: ContactRepository,
+    private val navigator: AppNavigator
+) : ViewModel(), ContactsViewModel {
+    override val progressFlow = MutableStateFlow(true)
     override val contactLiveData = MutableLiveData<List<ContactUIData>>()
     override val errorMessageLiveData = MutableLiveData<String>()
     override val notConnectionLiveData = MutableLiveData<Unit>()
@@ -32,46 +39,55 @@ class ContactViewModelImpl @Inject constructor(private val repository: ContactRe
     }
 
     override fun loadContacts() {
-        progressLiveData.value = true
-        repository.getAllContact(
-            successBlock = {
-                Timber.tag("TTT").d("viewModel get succes %s", it.size)
+        progressFlow.value = true
+
+        repository.getAllContact2().onEach { resultData ->
+            resultData.onSuccess {
+                progressFlow.value = false
                 contactLiveData.value = it
-                progressLiveData.value = false
-            },
-            errorBlock = {
-                Timber.tag("TTT").d("viewModel get error %s", it)
-                progressLiveData.value = false
             }
-        )
+            resultData.onFailure {
+                "model get failure $it".myLog()
+                progressFlow.value = false
+            }
+
+        }.launchIn(viewModelScope)
     }
+
 
     override fun openAddContactScreen() {
         openAddContactScreen.value = Unit
     }
 
-    override fun deleteContact(contactUIData: ContactUIData) {
-        progressLiveData.value = true
 
-        repository.deleteContact(
-            contactUIData = contactUIData,
-            successBlock = {
+    override fun deleteContact(contactUIData: ContactUIData) {
+        progressFlow.value = true
+
+        repository.deleteContact2(contactUIData).onEach {
+            it.onSuccess {
                 "model delete success".myLog()
 
-                progressLiveData.value = false
+                progressFlow.value = false
                 loadContacts()
-            },
-            errorBlock = {
-                "model delete error: $it".myLog()
-                progressLiveData.value = false
             }
-        )
+
+            it.onFailure {
+                "model delete error: $it".myLog()
+                progressFlow.value = false
+            }
+        }.launchIn(viewModelScope)
     }
 
     override fun clickEdit(contactUI: ContactUIData) {
+
+
         if (contactUI.status == StatusEnum.ADD) {
             "model: bu kontakt add statusda buni faqat o'chirish mumkin".myLog()
             return
+        }
+
+        viewModelScope.launch {
+            navigator.navigateTo(ContactsScreenDirections.actionContactsScreenToEditContactScreen(contactUI))
         }
 
         openEditScreen.value = contactUI

@@ -1,6 +1,7 @@
 package com.sudo_pacman.contactonoff.presenter.viewmodel
 
 import androidx.lifecycle.LiveData
+import com.sudo_pacman.contactonoff.data.model.StatusEnum
 
 interface EditContactViewModel  {
     val closeScreenLiveData: LiveData<Unit>
@@ -9,5 +10,5 @@ interface EditContactViewModel  {
     val errorMessageLiveData: LiveData<String>
 
     fun closeScreen()
-    fun editContact(id: Int, firsName: String, lastName: String, phone: String)
+    fun editContact(id: Int, firsName: String, lastName: String, phone: String, status: StatusEnum)
 }
